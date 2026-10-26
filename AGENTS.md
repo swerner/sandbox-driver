@@ -57,3 +57,19 @@ style-guide defaults.
 ## Working documents
 
 Save plans under `.ai/plans/` and reviews under `.ai/reviews/`.
+
+## Cursor Cloud specific instructions
+
+The base image's Rust is older than the locked `cargo-nextest` and `cargo-llvm-cov` releases. The environment install sets `rustup default` to the locked 1.97.1 toolchain. Use `mise run dev`, `mise run test`, and `mise run check`.
+
+Docker is installed for the Docker provider. systemd is not PID 1 here, so the environment start command launches `dockerd` itself with the `fuse-overlayfs` storage driver. The `ubuntu` user is in the `docker` group after the next login. `docker info` succeeds once that start command has finished.
+
+Cloud Agents rewrite GitHub HTTPS remotes to a token URL. `bin/style-guides prepare` accepts only the public clone URL, so run setup without that rewrite:
+
+```sh
+style_git_config=$(mktemp)
+GIT_CONFIG_GLOBAL="$style_git_config" GIT_CONFIG_SYSTEM=/dev/null mise run setup
+rm -f "$style_git_config"
+```
+
+The environment install already does this. Daytona live tests stay ignored unless `DAYTONA_API_KEY` is set.
